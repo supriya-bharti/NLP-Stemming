@@ -1,0 +1,216 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6fb;
+  color: #20243a;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 8%;
+  background: #20243a;
+  color: white;
+}
+
+.logo {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #7773e8;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.header h1 {
+  margin: 0 0 5px;
+  font-size: 24px;
+}
+
+.header p {
+  margin: 0;
+  color: #d4d6e5;
+}
+
+.container {
+  width: min(1200px, 92%);
+  margin: 42px auto;
+}
+
+.intro {
+  margin-bottom: 24px;
+}
+
+.intro h2 {
+  margin-bottom: 8px;
+  font-size: 28px;
+}
+
+.intro p {
+  color: #666b80;
+  line-height: 1.6;
+}
+
+.panel {
+  padding: 25px;
+  margin-bottom: 24px;
+  background: white;
+  border: 1px solid #e5e7f0;
+  border-radius: 16px;
+  box-shadow: 0 5px 20px #20243a0a;
+}
+
+label {
+  display: block;
+  margin: 14px 0 9px;
+  font-weight: 600;
+}
+
+textarea,
+select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d7d9e5;
+  border-radius: 9px;
+  font: inherit;
+  background: white;
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+textarea:focus,
+select:focus {
+  outline: 2px solid #7773e8;
+  border-color: transparent;
+}
+
+button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px;
+  border: 0;
+  border-radius: 9px;
+  background: #625bdc;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #5048c5;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.error {
+  padding: 14px;
+  color: #a32626;
+  background: #fff0f0;
+  border-radius: 9px;
+}
+
+.results h2 {
+  margin-top: 0;
+}
+
+.result-count {
+  color: #73778a;
+  font-size: 14px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #ececf3;
+}
+
+th {
+  background: #f5f5fc;
+}
+
+footer {
+  padding: 24px;
+  text-align: center;
+  color: #777b8d;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 20px 5%;
+  }
+
+  .container {
+    margin-top: 28px;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .intro h2 {
+    font-size: 24px;
+  }
+}
+
+
+/* Fix text visibility in input fields */
+textarea,
+select {
+  color: #20243a;
+  background-color: #ffffff;
+  opacity: 1;
+  -webkit-text-fill-color: #20243a;
+}
+
+/* Make placeholder text visible but lighter */
+textarea::placeholder {
+  color: #777b8d;
+  opacity: 1;
+}
+
+/* Keep dropdown options readable */
+select option {
+  color: #20243a;
+  background-color: #ffffff;
+}
+
+/* Make labels clearly visible */
+label {
+  color: #20243a;
+}
+
+/* Keep dropdown styling consistent */
+select {
+  cursor: pointer;
+  appearance: auto;
+}

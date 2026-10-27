@@ -5,7 +5,7 @@ from nltk.stem import PorterStemmer
 nltk_stemmer = PorterStemmer()
 
 
-def evaluate(words):
+def evaluate(*words):
 
     total = 0
     matches = 0
@@ -29,6 +29,6 @@ def evaluate(words):
             (word, my_stem, nltk_stem, status)
         )
 
-    accuracy = (matches / total) * 100
+    accuracy = (matches / total) * 100 if total > 0 else 0
 
     return results, accuracy

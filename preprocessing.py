@@ -1,8 +1,9 @@
-import string
 
+import string
+from stemmer import porter_stem
 from tokenizer import tokenize
 from stopwords import remove_stopwords
-from stemmer import porter_stem
+from lemmatizer import lemmatize
 
 def preprocess(text):
 
@@ -28,8 +29,8 @@ def preprocess(text):
 
     return stemmed_tokens
 
-def preprocess_with_mapping(text):
 
+def preprocess_with_mapping(text):
     text = text.lower()
 
     text = text.translate(
@@ -37,17 +38,18 @@ def preprocess_with_mapping(text):
     )
 
     tokens = tokenize(text)
-
     tokens = remove_stopwords(tokens)
 
     result = []
 
     for word in tokens:
         stemmed = porter_stem(word)
+        lemmatized = lemmatize(word)
 
-        result.append((word, stemmed))
+        result.append((word, stemmed, lemmatized))
 
     return result
+
 
 def show_pipeline(text):
 

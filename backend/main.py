@@ -1,8 +1,12 @@
-
+import string
+from tokenizer import tokenize
+from stopwords import remove_stopwords
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from stemmer import porter_stem
+from lemmatizer import lemmatize
 from preprocessing import preprocess_with_mapping, show_pipeline
 
 app = FastAPI(title="NLP Stemming and Lemmatization API")
@@ -20,12 +24,84 @@ app.add_middleware(
 class TextRequest(BaseModel):
     text: str
     operation: str = "both"
+    show_steps: bool = False
 
+def get_preprocessing_steps(text):
+    steps = []
+
+    steps.append({
+        "name": "Original Text",
+        "value": text
+    })
+
+    text = text.lower()
+    steps.append({
+        "name": "Lowercase",
+        "value": text
+    })
+
+    text = text.translate(
+        str.maketrans("", "", string.punctuation)
+    )
+    steps.append({
+        "name": "Punctuation Removed",
+        "value": text
+    })
+
+    tokens = tokenize(text)
+    steps.append({
+        "name": "Tokenization",
+        "value": tokens
+    })
+
+    tokens = remove_stopwords(tokens)
+    steps.append({
+        "name": "Stopword Removal",
+        "value": tokens
+    })
+
+    return steps
 
 @app.get("/")
 def home():
     return {"message": "NLP API is running!"}
 
+
+
+
+def get_preprocessing_steps(text):
+    steps = []
+
+    steps.append({
+        "name": "Original Text",
+        "value": text
+    })
+
+    text = text.lower()
+    steps.append({
+        "name": "Lowercase",
+        "value": text
+    })
+
+    text = text.translate(str.maketrans("", "", string.punctuation))
+    steps.append({
+        "name": "Punctuation Removed",
+        "value": text
+    })
+
+    tokens = tokenize(text)
+    steps.append({
+        "name": "Tokenization",
+        "value": tokens
+    })
+
+    tokens = remove_stopwords(tokens)
+    steps.append({
+        "name": "Stopword Removal",
+        "value": tokens
+    })
+
+    return steps
 
 @app.post("/process")
 def process_text(request: TextRequest):
@@ -50,9 +126,10 @@ def process_text(request: TextRequest):
             item["lemma"] = lemma
 
         output.append(item)
-
+    steps = get_preprocessing_steps(request.text) if request.show_steps else []
     return {
         "original_text": request.text,
         "operation": request.operation,
         "results": output,
+        "preprocessing_steps": steps,
     }

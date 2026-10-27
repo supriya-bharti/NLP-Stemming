@@ -214,3 +214,71 @@ select {
   cursor: pointer;
   appearance: auto;
 }
+
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.button-group button {
+  flex: 1;
+}
+
+.clear-button {
+  background: #e8eaf2;
+  color: #20243a;
+}
+
+.clear-button:hover {
+  background: #d8dbea;
+}
+
+@media (max-width: 480px) {
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+}
+
+
+.word-count {
+  margin: 8px 0 16px;
+  text-align: right;
+  color: #777b8d;
+  font-size: 13px;
+}
+
+.steps-button {
+  margin-top: 18px;
+  background: #e8eaf2;
+  color: #20243a;
+}
+
+.steps-button:hover {
+  background: #d8dbea;
+}
+
+
+.step-item {
+  margin-top: 18px;
+  padding: 14px;
+  background: #f5f5fc;
+  border-radius: 10px;
+}
+
+.step-item h3 {
+  margin-top: 0;
+  font-size: 16px;
+}
+
+.step-item pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #343852;
+  font-family: Consolas, monospace;
+}

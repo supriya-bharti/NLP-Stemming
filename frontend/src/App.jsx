@@ -10,6 +10,64 @@ function App() {
   const [error, setError] = useState("");
 
   const [preprocessingSteps, setPreprocessingSteps] = useState([]);
+
+  function handleDownloadCSV() {
+    const headers = ["Original Word"];
+
+    if (operation !== "lemmatization") {
+      headers.push("Stem");
+    }
+
+    if (operation !== "stemming") {
+      headers.push("Lemma");
+    }
+
+    if (operation === "both") {
+      headers.push("Transformation");
+    }
+
+    const rows = results.map((item) => {
+      const row = [item.word];
+
+      if (operation !== "lemmatization") {
+        row.push(item.stem);
+      }
+
+      if (operation !== "stemming") {
+        row.push(item.lemma);
+      }
+
+      if (operation === "both") {
+        row.push(
+          item.stem !== item.lemma ? "Stem differs from lemma" : "Same result",
+        );
+      }
+
+      return row;
+    });
+
+    const csvContent = [headers, ...rows]
+      .map((row) =>
+        row
+          .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
+          .join(","),
+      )
+      .join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "nlp_analysis_results.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
+
   async function handleProcess() {
     if (!text.trim()) {
       setError("Please enter some text first.");
@@ -148,17 +206,47 @@ function App() {
         {results.length > 0 && (
           <section className="panel results">
             <h2>Analysis Results</h2>
+
+            <div className="stats-grid">
+              <div className="stat-card">
+                <h3>Total Words</h3>
+                <p>{results.length}</p>
+              </div>
+
+              <div className="stat-card">
+                <h3>Unique Stems</h3>
+                <p>
+                  {operation !== "lemmatization"
+                    ? new Set(results.map((item) => item.stem)).size
+                    : "—"}
+                </p>
+              </div>
+
+              <div className="stat-card">
+                <h3>Different Results</h3>
+                <p>
+                  {operation === "both"
+                    ? results.filter((item) => item.stem !== item.lemma).length
+                    : "—"}
+                </p>
+              </div>
+            </div>
+
             <p className="result-count">
               {results.length} words after stopword removal
             </p>
 
             <div className="table-wrapper">
+              <button className="download-button" onClick={handleDownloadCSV}>
+                Download Results (CSV)
+              </button>
               <table>
                 <thead>
                   <tr>
                     <th>Original Word</th>
                     {operation !== "lemmatization" && <th>Stem</th>}
                     {operation !== "stemming" && <th>Lemma</th>}
+                    <th>Transformation</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -167,6 +255,11 @@ function App() {
                       <td>{item.word}</td>
                       {operation !== "lemmatization" && <td>{item.stem}</td>}
                       {operation !== "stemming" && <td>{item.lemma}</td>}
+                      <td>
+                        {operation === "both" && item.stem !== item.lemma
+                          ? "Stem differs from lemma"
+                          : "Same result"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

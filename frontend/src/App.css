@@ -282,3 +282,52 @@ select {
   color: #343852;
   font-family: Consolas, monospace;
 }
+
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: #f5f5fc;
+  padding: 18px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  font-size: 14px;
+  margin: 0 0 10px;
+  color: #555b75;
+}
+
+.stat-card p {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  color: #343852;
+}
+
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.download-button {
+  margin-top: 18px;
+  background: #343852;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.download-button:hover {
+  background: #4b5275;
+}

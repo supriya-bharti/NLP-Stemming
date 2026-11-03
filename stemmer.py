@@ -20,20 +20,10 @@ def is_vowel_at(word, index):
 def measure(word):
 
     m = 0
-    i = 0
 
-    while i < len(word):
+    for i in range(1, len(word)):
 
-        # Skip consonants
-        while i < len(word) and is_consonant(word, i):
-            i += 1
-
-        # Skip vowels
-        while i < len(word) and not is_consonant(word, i):
-            i += 1
-
-        # We completed a VC sequence
-        if i < len(word):
+        if not is_consonant(word, i - 1) and is_consonant(word, i):
             m += 1
 
     return m
@@ -117,8 +107,9 @@ def step1c(word):
 
         stem = word[:-1]
 
-        if contains_vowel(stem):
-            word = stem + "i"
+        if stem and is_consonant(stem, len(stem) - 1):
+            if contains_vowel(stem):
+                word = stem + "i"
 
     return word
 
@@ -253,6 +244,10 @@ def cvc(word):
 
 def step5a(word):
 
+    # Preserve the word "are"
+    if word == "are":
+        return word
+
     if word.endswith("e"):
 
         stem = word[:-1]
@@ -299,4 +294,6 @@ def porter_stem(word):
     return word
 
 
+
+from stemmer import porter_stem
 

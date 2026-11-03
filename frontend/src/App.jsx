@@ -15,6 +15,8 @@ function App() {
   const [lemmaEvaluation, setLemmaEvaluation] = useState(null);
   const [lemmaEvaluationLoading, setLemmaEvaluationLoading] = useState(false);
   const [lemmaEvaluationError, setLemmaEvaluationError] = useState("");
+  const [showDashboard, setShowDashboard] = useState(false);
+const [dashboardView, setDashboardView] = useState("both");
 
   const [preprocessingSteps, setPreprocessingSteps] = useState([]);
 
@@ -272,6 +274,12 @@ function App() {
             >
               {lemmaEvaluationLoading ? "Evaluating..." : "Evaluate Lemmatizer"}
             </button>
+            <button
+  className="steps-button"
+  onClick={() => setShowDashboard(!showDashboard)}
+>
+  {showDashboard ? "Hide Dashboard" : "Show Evaluation Dashboard"}
+</button>
           </div>
         </section>
         <button
@@ -462,6 +470,84 @@ function App() {
             </div>
           </section>
         )}
+        {showDashboard && (
+  <section className="panel">
+    <h2>Evaluation Dashboard</h2>
+
+    <div className="stats-grid">
+      <div className="stat-card">
+        <h3>Stemming Agreement</h3>
+        <p>
+          {evaluation ? `${evaluation.accuracy}%` : "Not evaluated"}
+        </p>
+      </div>
+
+      <div className="stat-card">
+        <h3>Lemmatization Agreement</h3>
+        <p>
+          {lemmaEvaluation
+            ? `${lemmaEvaluation.accuracy}%`
+            : "Not evaluated"}
+        </p>
+      </div>
+
+      <div className="stat-card">
+        <h3>Stemming Matches</h3>
+        <p>
+          {evaluation
+            ? evaluation.results.filter((item) => item.status === "Match").length
+            : "—"}
+        </p>
+      </div>
+
+      <div className="stat-card">
+        <h3>Lemmatization Matches</h3>
+        <p>
+          {lemmaEvaluation
+            ? lemmaEvaluation.results.filter((item) => item.status === "Match").length
+            : "—"}
+        </p>
+      </div>
+    </div>
+
+    <h3>Agreement Comparison</h3>
+
+    <div className="comparison-chart">
+      <div className="chart-row">
+        <span>Stemming</span>
+        <div className="chart-track">
+          <div
+            className="chart-bar"
+            style={{
+              width: `${evaluation ? evaluation.accuracy : 0}%`,
+            }}
+          />
+        </div>
+        <span>{evaluation ? `${evaluation.accuracy}%` : "—"}</span>
+      </div>
+
+      <div className="chart-row">
+        <span>Lemmatization</span>
+        <div className="chart-track">
+          <div
+            className="chart-bar"
+            style={{
+              width: `${lemmaEvaluation ? lemmaEvaluation.accuracy : 0}%`,
+            }}
+          />
+        </div>
+        <span>
+          {lemmaEvaluation ? `${lemmaEvaluation.accuracy}%` : "—"}
+        </span>
+      </div>
+    </div>
+
+    <p className="dashboard-note">
+      Agreement shows how often your custom method produces the same result
+      as the corresponding NLTK method.
+    </p>
+  </section>
+)}
       </main>
 
       <footer>Built with React, FastAPI, and custom NLP algorithms</footer>

@@ -9,7 +9,7 @@ def evaluate_lemmatizer(test_words):
     correct = 0
 
     for word, pos in test_words:
-        our_result = lemmatize(word)
+        our_result = lemmatize(word, pos)
 
         nltk_result = nltk_lemmatizer.lemmatize(word, pos=pos)
 
@@ -39,9 +39,11 @@ if __name__ == "__main__":
     ("boxes", "n"),
     ("studies", "n"),
     ("types", "n"),
+    ("jumped", "n"),
 
     # Verbs
     ("running", "v"),
+    ("jumped", "v"),
     ("studying", "v"),
     ("went", "v"),
     ("gone", "v"),

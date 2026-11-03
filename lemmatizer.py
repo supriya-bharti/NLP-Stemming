@@ -1,4 +1,3 @@
-# lemmatizer.py
 
 irregular_words = {
     "children": "child",
@@ -28,90 +27,95 @@ special_words = {
     "becoming": "become"
 }
 
-def lemmatize(word):
+
+def lemmatize(word, pos="n"):
+    word = word.lower()
 
     # Check irregular words first
     if word in irregular_words:
         return irregular_words[word]
 
-
     if word in special_words:
         return special_words[word]
-    
-    # Comparative adjectives
-    if word.endswith("ier") and len(word) > 4:
-        return word[:-3] + "y"
 
-    if word.endswith("er") and len(word) > 4:
-        stem = word[:-2]
+    # Verb rules
+    if pos == "v":
 
-        # simpler → simple, not simpl
-        if stem.endswith("l"):
-            return stem + "e"
+        # Words ending in "ing"
+        if word.endswith("ing") and len(word) >= 5:
+            stem = word[:-3]
 
-        # bigger → big
-        if len(stem) >= 2 and stem[-1] == stem[-2]:
-            stem = stem[:-1]
+            # running -> run
+            if len(stem) >= 2 and stem[-1] == stem[-2]:
+                stem = stem[:-1]
 
-        return stem
+            silent_e_words = {
+                "mak": "make",
+                "tak": "take",
+                "writ": "write",
+                "com": "come",
+                "us": "use"
+            }
 
-    # Words ending in "ies"
-    if word.endswith("ies") and len(word) > 4:
-        return word[:-3] + "y"
+            if stem in silent_e_words:
+                return silent_e_words[stem]
 
-    
-    # Words ending in "ing"
-    if word.endswith("ing") and len(word) >= 5:
-        stem = word[:-3]
+            # fascinating -> fascinate
+            if stem.endswith("nat"):
+                return stem + "e"
 
-        # running → run
-        if len(stem) >= 2 and stem[-1] == stem[-2]:
-            stem = stem[:-1]
+            return stem
 
-        # Restore final "e" for selected words
-        silent_e_words = {
-            "mak": "make",
-            "tak": "take",
-            "writ": "write",
-            "com": "come",
-            "us": "use"
-        }
+        # Words ending in "ed"
+        if word.endswith("ed") and len(word) > 4:
+            stem = word[:-2]
 
-        if stem in silent_e_words:
-            return silent_e_words[stem]
+            # stopped -> stop
+            if len(stem) >= 2 and stem[-1] == stem[-2]:
+                stem = stem[:-1]
 
-        # fascinating → fascinate
-        if stem.endswith("nat"):
-            return stem + "e"
+            return stem
 
-        return stem
+    # Adjective rules
+    if pos == "a":
 
+        # happier -> happy
+        if word.endswith("ier") and len(word) > 4:
+            return word[:-3] + "y"
 
-    # Words ending in "ed"
-    if word.endswith("ed") and len(word) > 4:
-        stem = word[:-2]
+        # simpler -> simple
+        if word.endswith("er") and len(word) > 4:
+            stem = word[:-2]
 
-        # stopped → stop
-        if len(stem) >= 2 and stem[-1] == stem[-2]:
-            stem = stem[:-1]
+            if stem.endswith("l"):
+                return stem + "e"
 
-        return stem
+            # bigger -> big
+            if len(stem) >= 2 and stem[-1] == stem[-2]:
+                stem = stem[:-1]
 
-    
-    # Plural words ending in "ses", "shes", "ches", "xes", or "zes"
-    if word.endswith(("sses", "shes", "ches", "xes", "zes")):
-        return word[:-2]
+            return stem
 
-    # Other words ending in "es"
-    if word.endswith("es") and len(word) > 4:
-        return word[:-2]
+    # Noun rules
+    if pos == "n":
 
+        # studies -> study
+        if word.endswith("ies") and len(word) > 4:
+            return word[:-3] + "y"
 
-    # Plural words ending in "s"
-    if word.endswith("s") and len(word) > 3:
-        if word.endswith(("ss", "us", "is")):
-            return word
+        # Plural words ending in "sses", "shes", "ches", "xes", or "zes"
+        if word.endswith(("sses", "shes", "ches", "xes", "zes")):
+            return word[:-2]
 
-        return word[:-1]
+        # Other words ending in "es"
+        if word.endswith("es") and len(word) > 4:
+            return word[:-2]
+
+        # Plural words ending in "s"
+        if word.endswith("s") and len(word) > 3:
+            if word.endswith(("ss", "us", "is")):
+                return word
+
+            return word[:-1]
 
     return word

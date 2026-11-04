@@ -58,13 +58,14 @@ if __name__ == "__main__":
     ("analyzing", "v"),
     ("processing", "v"),
     ("becoming", "v"),
+    ("fascinating", "v"),
 
     # Adjectives
     ("better", "a"),
     ("worse", "a"),
     ("happier", "a"),
     ("simpler", "a"),
-    ("fascinating", "v"),
+    
 ]
 
 

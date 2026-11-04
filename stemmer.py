@@ -42,7 +42,10 @@ def step1a(word):
         word = word[:-2]
 
     elif word.endswith("ies"):
-        word = word[:-2]
+        if len(word) == 4:
+            word = word[:-2] + "e"
+        else:
+            word = word[:-2]
 
     elif word.endswith("ss"):
         word = word

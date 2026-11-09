@@ -36,7 +36,8 @@ special_words = {
     "linguistics": "linguistics",
     "preprocessing": "preprocess",
     "becoming": "become",
-    "buses": "bus"
+    "buses": "bus",
+    "programming": "programming",
 }
 
 
@@ -54,6 +55,18 @@ def lemmatize(word, pos="n"):
     
     # Verb rules
     if pos == "v":
+        
+        # Irregular verb forms
+        irregular_verbs = {
+            "am": "be",
+            "is": "be",
+            "are": "be",
+            "was": "be",
+            "were": "be"
+        }
+
+        if word in irregular_verbs:
+            return irregular_verbs[word]
 
         # Words ending in "ing"
         if word.endswith("ing") and len(word) >= 5:
@@ -155,34 +168,32 @@ def lemmatize(word, pos="n"):
     # Noun rules
     if pos == "n":
 
-        # studies -> study
+    # studies -> study
         if word.endswith("ies") and len(word) > 4:
             return word[:-3] + "y"
 
-        # Plural words ending in "sses", "shes", "ches", "xes", or "zes"
+    # classes -> class, watches -> watch
         if word.endswith(("sses", "shes", "ches", "xes", "zes")):
             return word[:-2]
 
-        
-        # Words ending in "es"
     # houses -> house
-    if word == "houses":
-        return "house"
+        if word == "houses":
+            return "house"
 
     # tomatoes -> tomato, potatoes -> potato
-    if word.endswith(("oes",)):
-        return word[:-2]
+        if word.endswith("oes"):
+            return word[:-2]
 
     # Other words ending in es
-    if word.endswith("es") and len(word) > 4:
-        if word.endswith(("ses", "zes")):
-            return word[:-1]
-        return word[:-2]
+        if word.endswith("es") and len(word) > 4:
+            if word.endswith(("ses", "zes")):
+                return word[:-1]
+            return word[:-2]
 
-        # words ending in "s"
-    if word.endswith("s") and len(word) > 2:
-        if word.endswith(("ss", "us", "is")):
-            return word
+    # dogs -> dog, cars -> car, books -> book
+        if word.endswith("s") and len(word) > 2:
+            if word.endswith(("ss", "us", "is")):
+                return word
 
         return word[:-1]
 

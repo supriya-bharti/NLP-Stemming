@@ -9,6 +9,7 @@ from lemmatization_evaluation import evaluate_lemmatizer
 from stemmer import porter_stem
 from lemmatizer import lemmatize
 from preprocessing import preprocess_with_mapping, show_pipeline
+from pos_tagger import tag_sentence
 
 app = FastAPI(title="NLP Stemming and Lemmatization API")
 
@@ -97,28 +98,74 @@ def evaluate_lemmatization(request: LemmatizationEvaluationRequest):
     if not request.text.strip():
         return {"error": "Please enter some text."}
 
-    if request.pos not in ["n", "v", "a"]:
+    if request.pos not in ["n", "v", "a", "all"]:
         return {"error": "Invalid Part of Speech."}
-
-    words = request.text.lower().split()
-
-    test_words = [(word, request.pos) for word in words]
-
-    results, accuracy = evaluate_lemmatizer(test_words)
 
     output = []
 
-    for word, pos, our_result, nltk_result, status in results:
-        output.append({
-            "word": word,
-            "pos": pos,
-            "custom_lemma": our_result,
-            "nltk_lemma": nltk_result,
-            "status": status
-        })
+    if request.pos == "all":
+
+        tagged_words = tag_sentence(request.text)
+
+        test_words = [
+            (word, pos)
+            for word, pos in tagged_words
+            if pos in ["n", "v", "a", "r"]
+        ]
+
+        results, accuracy = evaluate_lemmatizer(test_words)
+
+        result_map = {}
+
+        for word, pos, our_result, nltk_result, status in results:
+            result_map.setdefault(word, []).append({
+                "pos": pos,
+                "custom_lemma": our_result,
+                "nltk_lemma": nltk_result,
+                "status": status
+            })
+
+        for word, pos in tagged_words:
+
+            if pos == "other":
+                output.append({
+                    "word": word,
+                    "pos": pos,
+                    "custom_lemma": word,
+                    "nltk_lemma": word,
+                    "status": "SKIPPED"
+                })
+
+            else:
+                item = result_map[word].pop(0)
+                output.append({
+                    "word": word,
+                    **item
+                })
+
+        total_words = len(test_words)
+
+    else:
+
+        words = request.text.lower().split()
+
+        test_words = [(word, request.pos) for word in words]
+
+        results, accuracy = evaluate_lemmatizer(test_words)
+
+        for word, pos, our_result, nltk_result, status in results:
+            output.append({
+                "word": word,
+                "pos": pos,
+                "custom_lemma": our_result,
+                "nltk_lemma": nltk_result,
+                "status": status
+            })
+
+        total_words = len(words)
 
     return {
-        "total_words": len(words),
+        "total_words": total_words,
         "accuracy": round(accuracy, 2),
         "results": output
     }

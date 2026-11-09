@@ -11,7 +11,7 @@ function App() {
   const [evaluation, setEvaluation] = useState(null);
   const [evaluationLoading, setEvaluationLoading] = useState(false);
   const [evaluationError, setEvaluationError] = useState("");
-  const [lemmaPOS, setLemmaPOS] = useState("n");
+  const [lemmaPOS, setLemmaPOS] = useState("all");
   const [lemmaEvaluation, setLemmaEvaluation] = useState(null);
   const [lemmaEvaluationLoading, setLemmaEvaluationLoading] = useState(false);
   const [lemmaEvaluationError, setLemmaEvaluationError] = useState("");
@@ -234,11 +234,15 @@ const [dashboardView, setDashboardView] = useState("both");
             <option value="lemmatization">Lemmatization only</option>
             <option value="both">Both operations</option>
           </select>
+          <label htmlFor="lemmaPOS">Choose Part of Speech</label>
+
           <select
+            id="lemmaPOS"
             value={lemmaPOS}
             onChange={(e) => setLemmaPOS(e.target.value)}
             className="operation-select"
           >
+            <option value="all">All (Automatic Detection)</option>
             <option value="n">Noun</option>
             <option value="v">Verb</option>
             <option value="a">Adjective</option>

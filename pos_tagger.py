@@ -7,7 +7,7 @@ nouns = {
     "book", "books", "computer", "computers",
     "language", "languages", "word", "words",
     "project", "projects", "algorithm", "algorithms",
-    "name", "city", "car", "house", "table"
+    "name", "city", "car", "roof","school", "house", "table"
 }
 
 # Common verbs
@@ -17,7 +17,9 @@ verbs = {
     "do", "does", "did", "go", "goes", "went",
     "run", "runs", "eat", "eats", "study", "studies",
     "learn", "learns", "write", "writes",
-    "play", "plays", "work", "works"
+    "play", "plays", "work", "works","fell", "went", "saw", "ran", "broke",
+    "wrote", "spoke", "took", "gave", "came",
+    "ate", "slept", "swam", "drove"
 }
 
 # Common adjectives
@@ -58,7 +60,8 @@ plural_nouns = {
     "students", "teachers", "books", "computers",
     "languages", "words", "projects", "algorithms",
     "cars", "dogs", "tables", "chairs",
-    "topics", "applications", "researchers"
+    "topics", "applications", "researchers",
+    "children"
 }
 
 ing_nouns = {
@@ -71,34 +74,50 @@ ing_nouns = {
     "shopping"
 }
 
+
 def detect_pos(word):
 
     word = word.lower()
-    
+
     if word in other_words:
         return "other"
 
-    if word in plural_nouns:
-        return "n"
+    # Check known irregular verbs first
+    irregular_verbs = {
+        "fell", "went", "saw", "ran", "broke",
+        "wrote", "spoke", "took", "gave", "came",
+        "ate", "slept", "swam", "drove"
+    }
 
-    if word in nouns:
-        return "n"
+    if word in irregular_verbs:
+        return "v"
 
+    # Check adverbs before nouns
+    if word in adverbs or word in {
+        "down", "up", "away", "there", "here"
+    }:
+        return "r"
+
+    # Check other known words
     if word in verbs:
         return "v"
 
     if word in adjectives:
         return "a"
 
-    if word in adverbs:
-        return "r"
+    if word in plural_nouns or word in nouns:
+        return "n"
 
     # Adverb detection
     if word.endswith("ly"):
         return "r"
 
-    if word.endswith(("ous", "ful", "less", "able", "ible", "ive", "al", "ic")):
-        if word.endswith("ic") and word in {"topic", "music", "traffic", "logic"}:
+    # Adjective detection
+    if word.endswith(("ous", "ful", "less", "able", "ible",
+                      "ive", "al", "ic")):
+        if word.endswith("ic") and word in {
+            "topic", "music", "traffic", "logic"
+        }:
             return "n"
         return "a"
 
@@ -110,8 +129,7 @@ def detect_pos(word):
     if word.endswith(("tion", "ment", "ness", "ity", "er", "or", "ism")):
         return "n"
 
-    # Default
-    return "n"
+    return "other"
 
 def detect_pos_with_context(words):
 

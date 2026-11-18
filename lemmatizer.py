@@ -166,39 +166,42 @@ def lemmatize(word, pos="n"):
 
 
     # Noun rules
+    
     if pos == "n":
-        
+
         if word == "language":
             return "language"
 
-    # studies -> study
+        # studies -> study
         if word.endswith("ies") and len(word) > 4:
             return word[:-3] + "y"
 
-    # classes -> class, watches -> watch
+        # classes -> class, watches -> watch
         if word.endswith(("sses", "shes", "ches", "xes", "zes")):
             return word[:-2]
 
-    # houses -> house
+        # houses -> house
         if word == "houses":
             return "house"
 
-    # tomatoes -> tomato, potatoes -> potato
+        # tomatoes -> tomato, potatoes -> potato
         if word.endswith("oes"):
             return word[:-2]
 
-    # Other words ending in es
+        # Other words ending in es
         if word.endswith("es") and len(word) > 4:
             if word.endswith(("ses", "zes")):
                 return word[:-1]
             return word[:-2]
 
-    # dogs -> dog, cars -> car, books -> book
+        # dogs -> dog, cars -> car, books -> book
         if word.endswith("s") and len(word) > 2:
             if word.endswith(("ss", "us", "is")):
                 return word
+            return word[:-1]
 
-        return word[:-1]
+        # Keep unchanged if no rule applies
+        return word
 
     return word
 

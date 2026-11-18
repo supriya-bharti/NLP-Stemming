@@ -4,6 +4,7 @@ from stemmer import porter_stem
 from tokenizer import tokenize
 from stopwords import remove_stopwords
 from lemmatizer import lemmatize
+from pos_tagger import detect_pos_with_context
 
 def preprocess(text):
 
@@ -30,6 +31,7 @@ def preprocess(text):
     return stemmed_tokens
 
 
+
 def preprocess_with_mapping(text):
     text = text.lower()
 
@@ -40,15 +42,24 @@ def preprocess_with_mapping(text):
     tokens = tokenize(text)
     tokens = remove_stopwords(tokens)
 
+    # Detect POS automatically
+    tagged_words = detect_pos_with_context(tokens)
+
     result = []
 
-    for word in tokens:
+    for word, pos in tagged_words:
         stemmed = porter_stem(word)
-        lemmatized = lemmatize(word)
 
-        result.append((word, stemmed, lemmatized))
+        # Keep other words unchanged
+        if pos == "other":
+            lemmatized = word
+        else:
+            lemmatized = lemmatize(word, pos)
+
+        result.append((word, stemmed, lemmatized, pos))
 
     return result
+
 
 
 def show_pipeline(text):

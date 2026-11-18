@@ -21,7 +21,7 @@ const [dashboardView, setDashboardView] = useState("both");
   const [preprocessingSteps, setPreprocessingSteps] = useState([]);
 
   function handleDownloadCSV() {
-    const headers = ["Original Word"];
+    const headers = ["Original Word", "POS"];
 
     if (operation !== "lemmatization") {
       headers.push("Stem");
@@ -36,7 +36,7 @@ const [dashboardView, setDashboardView] = useState("both");
     }
 
     const rows = results.map((item) => {
-      const row = [item.word];
+      const row = [item.word, item.pos];
 
       if (operation !== "lemmatization") {
         row.push(item.stem);
@@ -89,15 +89,18 @@ const [dashboardView, setDashboardView] = useState("both");
     setEvaluation(null);
 
     try {
+      console.log("Selected POS:", lemmaPOS);
       const response = await fetch("http://127.0.0.1:8000/evaluate/stemming", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, pos: lemmaPOS }),
       });
 
       const data = await response.json();
+      console.log("Selected POS:", lemmaPOS);
+      console.log("Backend response:", data);
 
       if (!response.ok || data.error) {
         throw new Error(data.error || "Evaluation failed.");
@@ -172,6 +175,7 @@ const [dashboardView, setDashboardView] = useState("both");
           text,
           operation,
           show_steps: true,
+          pos: lemmaPOS,
         }),
       });
 
@@ -264,6 +268,7 @@ const [dashboardView, setDashboardView] = useState("both");
             >
               Clear
             </button>
+            
             <button
               className="steps-button"
               onClick={handleEvaluate}
@@ -321,32 +326,7 @@ const [dashboardView, setDashboardView] = useState("both");
 
         {results.length > 0 && (
           <section className="panel results">
-            <h2>Analysis Results</h2>
-
-            <div className="stats-grid">
-              <div className="stat-card">
-                <h3>Total Words</h3>
-                <p>{results.length}</p>
-              </div>
-
-              <div className="stat-card">
-                <h3>Unique Stems</h3>
-                <p>
-                  {operation !== "lemmatization"
-                    ? new Set(results.map((item) => item.stem)).size
-                    : "—"}
-                </p>
-              </div>
-
-              <div className="stat-card">
-                <h3>Different Results</h3>
-                <p>
-                  {operation === "both"
-                    ? results.filter((item) => item.stem !== item.lemma).length
-                    : "—"}
-                </p>
-              </div>
-            </div>
+            
 
             <p className="result-count">
               {results.length} words after stopword removal
@@ -360,22 +340,39 @@ const [dashboardView, setDashboardView] = useState("both");
                 <thead>
                   <tr>
                     <th>Original Word</th>
+                    <th>POS</th>
                     {operation !== "lemmatization" && <th>Stem</th>}
                     {operation !== "stemming" && <th>Lemma</th>}
-                    <th>Transformation</th>
+                    {operation === "both" && <th>Transformation</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {results.map((item, index) => (
                     <tr key={`${item.word}-${index}`}>
                       <td>{item.word}</td>
-                      {operation !== "lemmatization" && <td>{item.stem}</td>}
-                      {operation !== "stemming" && <td>{item.lemma}</td>}
                       <td>
-                        {operation === "both" && item.stem !== item.lemma
-                          ? "Stem differs from lemma"
-                          : "Same result"}
+                        <span className={`pos-badge pos-${item.pos}`}>
+                          {{
+                            n: "Noun",
+                            v: "Verb",
+                            a: "Adjective",
+                            r: "Adverb",
+                            other: "Other"
+                          }[item.pos] || item.pos}
+                        </span>
                       </td>
+
+                      {operation !== "lemmatization" && <td>{item.stem}</td>}
+
+                      {operation !== "stemming" && <td>{item.lemma}</td>}
+
+                      {operation === "both" && (
+                        <td>
+                          {item.stem !== item.lemma
+                            ? "Stem differs from lemma"
+                            : "Same result"}
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -407,20 +404,36 @@ const [dashboardView, setDashboardView] = useState("both");
                 <thead>
                   <tr>
                     <th>Word</th>
-                    <th>Your Stemmer</th>
-                    <th>NLTK Stemmer</th>
+                    <th>POS</th>
+                    <th>Our Stem</th>
+                    <th>NLTK Stem</th>
                     <th>Status</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {evaluation.results.map((item, index) => (
+                
                     <tr key={`${item.word}-${index}`}>
                       <td>{item.word}</td>
+
+                      <td>
+                        <span className={`pos-badge pos-${item.pos}`}>
+                          {{
+                            n: "Noun",
+                            v: "Verb",
+                            a: "Adjective",
+                            r: "Adverb",
+                            other: "Other"
+                          }[item.pos] || item.pos}
+                        </span>
+                      </td>
+
                       <td>{item.custom_stem}</td>
                       <td>{item.nltk_stem}</td>
                       <td>{item.status}</td>
                     </tr>
+  
                   ))}
                 </tbody>
               </table>
@@ -463,7 +476,17 @@ const [dashboardView, setDashboardView] = useState("both");
                   {lemmaEvaluation.results.map((item, index) => (
                     <tr key={`${item.word}-${index}`}>
                       <td>{item.word}</td>
-                      <td>{item.pos}</td>
+                      <td>
+                        <span className={`pos-badge pos-${item.pos}`}>
+                          {{
+                            n: "Noun",
+                            v: "Verb",
+                            a: "Adjective",
+                            r: "Adverb",
+                            other: "Other"
+                          }[item.pos] || item.pos}
+                        </span>
+                      </td>
                       <td>{item.custom_lemma}</td>
                       <td>{item.nltk_lemma}</td>
                       <td>{item.status}</td>

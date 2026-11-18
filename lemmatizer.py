@@ -167,6 +167,9 @@ def lemmatize(word, pos="n"):
 
     # Noun rules
     if pos == "n":
+        
+        if word == "language":
+            return "language"
 
     # studies -> study
         if word.endswith("ies") and len(word) > 4:

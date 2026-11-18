@@ -376,3 +376,38 @@ select {
     font-size: 12px;
   }
 }
+
+
+/* POS Badges */
+.pos-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pos-n {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.pos-v {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.pos-a {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.pos-r {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+.pos-other {
+  background-color: #e5e7eb;
+  color: #374151;
+}

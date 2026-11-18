@@ -27,6 +27,11 @@ class TextRequest(BaseModel):
     text: str
     operation: str = "both"
     show_steps: bool = False
+    pos: str = "all"
+    
+class StemmingEvaluationRequest(BaseModel):
+    text: str
+    pos: str = "all"
 
 class LemmatizationEvaluationRequest(BaseModel):
     text: str
@@ -68,20 +73,37 @@ def get_preprocessing_steps(text):
 
     return steps
 
+
 @app.post("/evaluate/stemming")
-def evaluate_stemming(request: TextRequest):
+def evaluate_stemming(request: StemmingEvaluationRequest):
     if not request.text.strip():
         return {"error": "Please enter some text."}
 
-    words = request.text.lower().split()
+    tagged_words = tag_sentence(request.text)
+
+    if request.pos != "all":
+        tagged_words = [
+            (word, pos)
+            for word, pos in tagged_words
+            if pos == request.pos
+        ]
+
+    words = [word for word, pos in tagged_words]
+    if not words:
+        return {
+            "total_words": 0,
+            "accuracy": 0,
+            "results": []
+        }
 
     results, accuracy = evaluate(*words)
 
     output = []
 
-    for word, my_stem, nltk_stem, status in results:
+    for (word, pos), (_, my_stem, nltk_stem, status) in zip(tagged_words, results):
         output.append({
             "word": word,
+            "pos": pos,
             "custom_stem": my_stem,
             "nltk_stem": nltk_stem,
             "status": status
@@ -92,6 +114,8 @@ def evaluate_stemming(request: TextRequest):
         "accuracy": round(accuracy, 2),
         "results": output
     }
+
+
 @app.post("/evaluate/lemmatization")
 def evaluate_lemmatization(request: LemmatizationEvaluationRequest):
 
@@ -101,75 +125,49 @@ def evaluate_lemmatization(request: LemmatizationEvaluationRequest):
     if request.pos not in ["n", "v", "a", "all"]:
         return {"error": "Invalid Part of Speech."}
 
-    output = []
+    tagged_words = tag_sentence(request.text)
 
-    if request.pos == "all":
-
-        tagged_words = tag_sentence(request.text)
-
-        test_words = [
+    # Filter words according to selected POS
+    if request.pos != "all":
+        tagged_words = [
             (word, pos)
             for word, pos in tagged_words
-            if pos in ["n", "v", "a", "r"]
+            if pos == request.pos
         ]
 
-        results, accuracy = evaluate_lemmatizer(test_words)
+    # Evaluate only supported POS
+    test_words = [
+        (word, pos)
+        for word, pos in tagged_words
+        if pos in ["n", "v", "a", "r"]
+    ]
 
-        result_map = {}
+    if not test_words:
+        return {
+            "total_words": 0,
+            "accuracy": 0,
+            "results": []
+        }
 
-        for word, pos, our_result, nltk_result, status in results:
-            result_map.setdefault(word, []).append({
-                "pos": pos,
-                "custom_lemma": our_result,
-                "nltk_lemma": nltk_result,
-                "status": status
-            })
+    results, accuracy = evaluate_lemmatizer(test_words)
 
-        for word, pos in tagged_words:
+    output = []
 
-            if pos == "other":
-                output.append({
-                    "word": word,
-                    "pos": pos,
-                    "custom_lemma": word,
-                    "nltk_lemma": word,
-                    "status": "SKIPPED"
-                })
-
-            else:
-                item = result_map[word].pop(0)
-                output.append({
-                    "word": word,
-                    **item
-                })
-
-        total_words = len(test_words)
-
-    else:
-
-        words = request.text.lower().split()
-
-        test_words = [(word, request.pos) for word in words]
-
-        results, accuracy = evaluate_lemmatizer(test_words)
-
-        for word, pos, our_result, nltk_result, status in results:
-            output.append({
-                "word": word,
-                "pos": pos,
-                "custom_lemma": our_result,
-                "nltk_lemma": nltk_result,
-                "status": status
-            })
-
-        total_words = len(words)
+    for word, pos, our_result, nltk_result, status in results:
+        output.append({
+            "word": word,
+            "pos": pos,
+            "custom_lemma": our_result,
+            "nltk_lemma": nltk_result,
+            "status": status
+        })
 
     return {
-        "total_words": total_words,
+        "total_words": len(test_words),
         "accuracy": round(accuracy, 2),
         "results": output
     }
-    
+
 @app.get("/")
 def home():
     return {"message": "NLP API is running!"}
@@ -211,6 +209,7 @@ def get_preprocessing_steps(text):
 
     return steps
 
+
 @app.post("/process")
 def process_text(request: TextRequest):
     if not request.text.strip():
@@ -219,13 +218,21 @@ def process_text(request: TextRequest):
     if request.operation not in ["stemming", "lemmatization", "both"]:
         return {"error": "Invalid operation selected."}
 
-    # Use the existing preprocessing pipeline
+    # Get word, stem, lemma and POS
     results = preprocess_with_mapping(request.text)
+    if request.pos != "all":
+        results = [
+            item for item in results
+            if item[3] == request.pos
+        ]
 
     output = []
 
-    for original, stem, lemma in results:
-        item = {"word": original}
+    for original, stem, lemma, pos in results:
+        item = {
+            "word": original,
+            "pos": pos
+        }
 
         if request.operation in ["stemming", "both"]:
             item["stem"] = stem
@@ -234,10 +241,16 @@ def process_text(request: TextRequest):
             item["lemma"] = lemma
 
         output.append(item)
-    steps = get_preprocessing_steps(request.text) if request.show_steps else []
+
+    steps = (
+        get_preprocessing_steps(request.text)
+        if request.show_steps else []
+    )
+
     return {
         "original_text": request.text,
         "operation": request.operation,
         "results": output,
         "preprocessing_steps": steps,
     }
+

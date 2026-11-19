@@ -1,5 +1,6 @@
 
 irregular_words = {
+    "wrote": "write",
     "children": "child",
     "mice": "mouse",
     "men": "man",

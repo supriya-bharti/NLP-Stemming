@@ -7,9 +7,17 @@ nouns = {
     "book", "books", "computer", "computers",
     "language", "languages", "word", "words",
     "project", "projects", "algorithm", "algorithms",
-    "name", "city", "car", "roof","school", "house", "table"
+    "name", "city", "car", "roof","school", "house", "table", "story", "child", "dog", "cat",
+    "topic", "application", "researcher"
+}
+interjections = {
+    "hi", "hello", "hey", "wow", "oops",
+    "ouch", "hurrah", " bravo"
 }
 
+proper_nouns = {
+    "supriya", "bharti"
+}
 # Common verbs
 verbs = {
     "is", "am", "are", "was", "were",
@@ -75,14 +83,25 @@ ing_nouns = {
 }
 
 
+
 def detect_pos(word):
 
+    original_word = word
     word = word.lower()
 
+    # Interjections
+    if word in interjections:
+        return "interjection"
+
+    # Known proper nouns
+    if word in proper_nouns:
+        return "proper_noun"
+
+    # Words that belong to other categories
     if word in other_words:
         return "other"
 
-    # Check known irregular verbs first
+    # Irregular verbs
     irregular_verbs = {
         "fell", "went", "saw", "ran", "broke",
         "wrote", "spoke", "took", "gave", "came",
@@ -92,40 +111,41 @@ def detect_pos(word):
     if word in irregular_verbs:
         return "v"
 
-    # Check adverbs before nouns
-    if word in adverbs or word in {
-        "down", "up", "away", "there", "here"
-    }:
+    # Adverbs
+    if word in adverbs or word in {"down", "up", "away"}:
         return "r"
 
-    # Check other known words
-    if word in verbs:
-        return "v"
-
-    if word in adjectives:
-        return "a"
-
-    if word in plural_nouns or word in nouns:
-        return "n"
-
-    # Adverb detection
     if word.endswith("ly"):
         return "r"
 
-    # Adjective detection
+    # Known verbs
+    if word in verbs:
+        return "v"
+
+    # Known adjectives
+    if word in adjectives:
+        return "a"
+
+    # Known nouns
+    if word in plural_nouns or word in nouns:
+        return "n"
+
+    # Adjective suffixes
     if word.endswith(("ous", "ful", "less", "able", "ible",
                       "ive", "al", "ic")):
+
         if word.endswith("ic") and word in {
             "topic", "music", "traffic", "logic"
         }:
             return "n"
+
         return "a"
 
-    # Verb detection
+    # Verb suffixes
     if word.endswith(("ing", "ed", "ize", "ise")):
         return "v"
 
-    # Noun detection
+    # Noun suffixes
     if word.endswith(("tion", "ment", "ness", "ity", "er", "or", "ism")):
         return "n"
 
@@ -157,7 +177,7 @@ def detect_pos_with_context(words):
             if previous_pos == "other" and results[-1][0].lower() in [
                 "i", "you", "he", "she", "it", "we", "they"
             ]:
-                if pos != "other":
+                if pos not in ("r", "a", "n", "other"):
                     pos = "v"
 
         # Articles are not nouns
@@ -177,9 +197,11 @@ def detect_pos_with_context(words):
 
     return results
 
+
 def tag_sentence(sentence):
 
-    words = tokenize(sentence.lower())
+    # Do not convert the complete sentence to lowercase
+    words = tokenize(sentence)
 
     words = [
         word.strip(string.punctuation)

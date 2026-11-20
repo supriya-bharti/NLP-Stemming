@@ -8,15 +8,16 @@ nouns = {
     "language", "languages", "word", "words",
     "project", "projects", "algorithm", "algorithms",
     "name", "city", "car", "roof","school", "house", "table", "story", "child", "dog", "cat",
-    "topic", "application", "researcher"
+    "topic", "application", "researcher","nlp", "ai", "ml", "data", "model", "system", "program", "code","bank", "river", "mountain", "ocean", "forest", "desert", "island", "continent", "planet", "universe"
 }
 interjections = {
     "hi", "hello", "hey", "wow", "oops",
-    "ouch", "hurrah", " bravo"
+    "ouch", "hurrah", " bravo", "alas", "hurray", "yikes", "oopsie", "whoa", "yippee"
 }
 
 proper_nouns = {
-    "supriya", "bharti"
+    "supriya", "bharti", "john", "mary", "london", "paris",
+    "new york", "mumbai", "delhi", "tokyo", "sydney", "berlin", "moscow", "beijing", "cairo", "rio de janeiro", "cape town", "sao paulo", "toronto", "vancouver"
 }
 # Common verbs
 verbs = {
@@ -149,7 +150,7 @@ def detect_pos(word):
     if word.endswith(("tion", "ment", "ness", "ity", "er", "or", "ism")):
         return "n"
 
-    return "other"
+    return "n"
 
 def detect_pos_with_context(words):
 
